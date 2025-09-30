@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfólio Interativo - Bloco dos Butequeiros 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Carnaval Butequeiro (Roxo, Amarelo Dourado) -->
+    <!-- Application Structure Plan: The SPA uses a thematic, single-page scroll structure with a fixed nav. This design guides the user (potential sponsor) through a compelling narrative: starting with an impactful hero, proving value with a data-driven growth chart, building an emotional connection through the block's values and social initiatives, and finally presenting clear, actionable sponsorship packages. The carousels are added to boost visual engagement in key narrative sections (History and 2025 Focus). -->
+    <!-- Visualization & Content Choices: 1. Folião Growth -> Goal: Show change/growth -> Viz: Chart.js Line Chart -> Interaction: Hover tooltips -> Justification: Best for visualizing trends over time, highly impactful for sponsors. 2. History & Focus 2025 -> Goal: Visual storytelling -> Viz: Interactive Photo Carousel (HTML/JS) -> Interaction: Next/Prev buttons -> Justification: Breaks monotony and highlights visual proof of attendance. 3. Sponsorship Tiers -> Goal: Compare options -> Viz: HTML/Tailwind pricing table. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F7F7F7; /* Fundo mais claro */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        /* Paleta Roxo / Amarelo Dourado */
+        .nav-link.active {
+            font-weight: 700;
+            color: #5C2C90; /* Roxo para o link ativo */
+        }
+        .text-neon-yellow { color: #FDC83A; } /* Amarelo Dourado/Limão */
+        .bg-carnaval-purple { background-color: #5C2C90; } /* Roxo Intenso */
+        .text-carnaval-purple { color: #5C2C90; }
+        .border-neon-yellow { border-color: #FDC83A; }
+
+        /* Estilos do Carrossel */
+        .carousel-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            max-width: 900px; /* Limite de largura para desktop */
+            margin: 0 auto;
+        }
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        .carousel-slide {
+            flex: 0 0 100%;
+        }
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            cursor: pointer;
+            padding: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+        .carousel-button:hover {
+            background-color: white;
+        }
+        .carousel-button-prev { left: 1rem; }
+        .carousel-button-next { right: 1rem; }
+    </style>
+</head>
+<body class="text-gray-900">
+
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-md">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-2xl font-black text-carnaval-purple">
+                BUTEQUEIROS
+            </div>
+            <!-- Navegação Desktop -->
+            <div class="hidden md:flex space-x-8">
+                <a href="#historia" class="nav-link text-gray-600 hover:text-carnaval-purple transition-colors duration-300">Nossa História</a>
+                <a href="#crescimento" class="nav-link text-gray-600 hover:text-carnaval-purple transition-colors duration-300">Crescimento</a>
+                <a href="#pilares" class="nav-link text-gray-600 hover:text-carnaval-purple transition-colors duration-300">Nossos Pilares</a>
+                <a href="#foco2025" class="nav-link text-gray-600 hover:text-carnaval-purple transition-colors duration-300">Foco 2025</a>
+                <a href="#patrocinio" class="nav-link text-gray-600 hover:text-carnaval-purple transition-colors duration-300">Seja Parceiro</a>
+            </div>
+            <a href="#contato" class="hidden md:block bg-carnaval-purple text-white font-bold py-2 px-4 rounded-lg hover:bg-[#4a2374] transition-colors duration-300">Contato</a>
+
+            <!-- Botão Menu Mobile -->
+            <button id="mobile-menu-button" class="md:hidden text-carnaval-purple text-2xl font-black">
+                &#9776; <!-- Ícone Hambúrguer -->
+            </button>
+        </nav>
+         <!-- Menu Dropdown Mobile -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="#historia" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-carnaval-purple">Nossa História</a>
+                <a href="#crescimento" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-carnaval-purple">Crescimento</a>
+                <a href="#pilares" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-carnaval-purple">Nossos Pilares</a>
+                <a href="#foco2025" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-carnaval-purple">Foco 2025</a>
+                <a href="#patrocinio" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-carnaval-purple">Seja Parceiro</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="bg-carnaval-purple text-white py-20 md:py-32 shadow-xl">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-6xl font-black leading-tight mb-4">
+                    Bloco dos Butequeiros
+                </h1>
+                <p class="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto mb-8">
+                    14 anos revitalizando o carnaval de Contagem com tradição, comunidade e impacto social. Um brinde à cultura e à alegria!
+                </p>
+                <a href="#patrocinio" class="bg-white text-carnaval-purple font-black py-3 px-8 rounded-full text-lg hover:bg-gray-100 transition-transform duration-300 inline-block transform hover:scale-105 shadow-lg">
+                    Seja nosso parceiro em 2025
+                </a>
+            </div>
+        </section>
+
+        <section id="historia" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-black text-carnaval-purple">A História de Quem Resgatou o Carnaval</h2>
+                    <p class="mt-4 text-lg text-gray-700 max-w-3xl mx-auto">Nascemos em 2012 da união de amigos em um boteco, com o sonho de trazer a folia de volta às ruas de Contagem. Hoje, somos um símbolo de resistência cultural com 12 desfiles ininterruptos.</p>
+                </div>
+                
+                <!-- Carrossel de Fotos: História do Bloco -->
+                <div id="carousel-historia" class="carousel-container aspect-video mb-12">
+                    <div class="carousel-track">
+                        <!-- Slides de Exemplo: Substitua os URLs e textos ALT pelas suas fotos de desfile (ATENÇÃO: Use links diretos do Imgur ou Google Fotos, NÃO use links de visualização do Google Drive) -->
+                        <div class="carousel-slide">
+                            <!-- Link Quebrado Corrigido com Placeholder: Use seu link direto do Imgur aqui! -->
+                            <img src="https://i.imgur.com/I9QHkdf.jpeg" alt="Foto Desfile 2012" class="w-full h-full object-cover">
+                            <!-- DIV REMOVIDA: 2012: O Início da Lenda -->
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="https://i.imgur.com/AnNTy0L.jpeg" alt="Foto Desfile 2015" class="w-full h-full object-cover">
+                            <!-- DIV REMOVIDA: 2015: Crescimento Acelerado -->
+                        </div>
+                         <div class="carousel-slide">
+                            <img src="https://i.imgur.com/BYwfLZE.jpeg" alt="Foto Desfile 2020" class="w-full h-full object-cover">
+                            <!-- DIV REMOVIDA: 2020: Mais de 3.000 Foliões -->
+                        </div>
+                    </div>
+                    <button class="carousel-button carousel-button-prev text-carnaval-purple" aria-label="Anterior">
+                        <span class="font-black text-2xl">←</span>
+                    </button>
+                    <button class="carousel-button carousel-button-next text-carnaval-purple" aria-label="Próximo">
+                        <span class="font-black text-2xl">→</span>
+                    </button>
+                </div>
+                <!-- Fim Carrossel -->
+
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div class="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 border-b-4 border-neon-yellow">
+                        <div class="text-4xl text-neon-yellow mb-3">🍻</div>
+                        <h3 class="text-xl font-bold mb-2">Origem no Boteco</h3>
+                        <p class="text-gray-600">Fundado por frequentadores do "Bar do Feio" para reviver a tradição dos blocos de rua na cidade.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 border-b-4 border-neon-yellow">
+                        <div class="text-4xl text-neon-yellow mb-3">🗓️</div>
+                        <h3 class="text-xl font-bold mb-2">12 Anos de Folia</h3>
+                        <p class="text-gray-600">Uma trajetória de desfiles ininterruptos, consolidando nossa relevância na cena cultural da cidade.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 border-b-4 border-neon-yellow">
+                        <div class="text-4xl text-neon-yellow mb-3">📍</div>
+                        <h3 class="text-xl font-bold mb-2">Raízes no Eldorado</h3>
+                        <p class="text-gray-600">Uma conexão profunda com o público local, que valoriza nossa autenticidade e história.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="crescimento" class="bg-white py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-black text-carnaval-purple">O Poder da Multidão</h2>
+                    <p class="mt-4 text-lg text-gray-700 max-w-3xl mx-auto">De 50 para mais de 3.000 foliões. Nosso crescimento orgânico e comprovado é a maior prova do nosso sucesso e do alcance da sua marca.</p>
+                </div>
+                <div class="bg-gray-100 p-4 sm:p-8 rounded-lg shadow-2xl border border-gray-200">
+                    <div class="chart-container">
+                        <canvas id="growthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pilares" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-black text-carnaval-purple">Nossos Pilares: Um Carnaval com Propósito</h2>
+                    <p class="mt-4 text-lg text-gray-700 max-w-3xl mx-auto">Mais do que folia, promovemos valores que fortalecem nossa comunidade e tornam o carnaval uma festa mais consciente e inclusiva para todos.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="bg-white p-8 rounded-lg shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border-b-4 border-carnaval-purple">
+                         <div class="text-5xl mb-4 text-carnaval-purple">🎉</div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Cultura & Gastronomia</h3>
+                        <p class="text-gray-600">Celebramos a amizade, a comida de boteco e a alegria que só o samba e o carnaval de rua proporcionam.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border-b-4 border-carnaval-purple">
+                        <div class="text-5xl mb-4 text-carnaval-purple">♻️</div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Sustentabilidade</h3>
+                        <p class="text-gray-600">Promovemos a coleta seletiva e a consciência ambiental, construindo um carnaval mais limpo e responsável.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border-b-4 border-carnaval-purple">
+                        <div class="text-5xl mb-4 text-carnaval-purple">🤝</div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Inclusão Social</h3>
+                        <p class="text-gray-600">Nossos temas sempre trazem mensagens relevantes, promovendo a diversidade e a inclusão social na folia.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-xl text-center hover:shadow-2xl hover:scale-105 transition-all duration-300 border-b-4 border-carnaval-purple">
+                         <div class="text-5xl mb-4 text-carnaval-purple">👨‍👩‍👧‍👦</div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Ambiente Familiar</h3>
+                        <p class="text-gray-600">Somos um espaço de integração para todas as idades, onde diferentes gerações se divertem juntas com segurança.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="foco2025" class="bg-carnaval-purple py-16 md:py-24 text-white">
+            <div class="container mx-auto px-6 flex flex-wrap items-center">
+                <div class="w-full md:w-1/2 md:pr-12 mb-8 md:mb-0">
+                    <h2 class="text-3xl md:text-4xl font-black text-neon-yellow mb-4">Foco 2025: Protagonismo Feminino</h2>
+                    <p class="text-lg text-gray-200 mb-6">Em 2025, vamos investir fortemente no empoderamento feminino. Sua marca estará associada a uma causa social moderna e poderosa, promovendo um carnaval mais seguro e igualitário.</p>
+                    <ul class="space-y-4 text-gray-100">
+                        <li class="flex items-start">
+                            <span class="text-neon-yellow font-bold mr-3">✓</span>
+                            <span><strong>Oficinas para Ritmistas:</strong> Formação de novos talentos com ênfase na liderança feminina na bateria.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-neon-yellow font-bold mr-3">✓</span>
+                            <span><strong>Nova Mascote Feminina:</strong> Lançamento de uma nova personagem para dar mais visibilidade e representatividade às mulheres na folia.</span>
+                        </li>
+                         <li class="flex items-start">
+                            <span class="text-neon-yellow font-bold mr-3">✓</span>
+                            <span><strong>Combate ao Assédio:</strong> Reforçar o lema "o lugar de mulher é onde ela quiser", criando um ambiente de respeito.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-1/2">
+                    <!-- Carrossel de Fotos: Foco 2025 / Bateria -->
+                    <div id="carousel-foco" class="carousel-container aspect-video border-4 border-neon-yellow">
+                        <div class="carousel-track">
+                            <!-- Slides de Exemplo: Substitua os URLs e textos ALT pelas suas fotos (ATENÇÃO: Use links diretos do Imgur ou Google Fotos, NÃO use links de visualização do Google Drive) -->
+                             <div class="carousel-slide">
+                                <img src="https://i.imgur.com/QYXAqkQ.jpeg" alt="Foto Bateria 2025" class="w-full h-full object-cover">
+                                <!-- DIV REMOVIDA: Protagonismo Feminino na Bateria -->
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="https://i.imgur.com/Lw62IEb.jpeg" alt="Foto tema inclusão" class="w-full h-full object-cover">
+                                <!-- DIV REMOVIDA: Campanha de Inclusão e Respeito -->
+                            </div>
+                            <!-- NOVO SLIDE 3 (Substitua este URL) -->
+                            <div class="carousel-slide">
+                                <img src="https://i.imgur.com/twcaWJ7.jpeg" alt="Nova Mascote Feminina 2025" class="w-full h-full object-cover">
+                                <!-- DIV REMOVIDA: Apresentação da Nova Mascote Feminina -->
+                            </div>
+                            <!-- NOVO SLIDE 4 (Substitua este URL) -->
+                            <div class="carousel-slide">
+                                <img src="https://i.imgur.com/A1DpWq5.jpeg" alt="Oficina de Ritmistas" class="w-full h-full object-cover">
+                                <!-- DIV REMOVIDA: Alunas da Oficina de Ritmistas -->
+                            </div>
+                        </div>
+                        <button class="carousel-button carousel-button-prev text-carnaval-purple" aria-label="Anterior">
+                            <span class="font-black text-2xl">←</span>
+                        </button>
+                        <button class="carousel-button carousel-button-next text-carnaval-purple" aria-label="Próximo">
+                            <span class="font-black text-2xl">→</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="patrocinio" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-black text-carnaval-purple">Seja Nosso Parceiro: Invista na Cultura</h2>
+                    <p class="mt-4 text-lg text-gray-700 max-w-3xl mx-auto">Escolha o nível de impacto que sua marca deseja ter no maior carnaval de rua de Contagem. Oferecemos visibilidade massiva e associação a um projeto cultural consolidado.</p>
+                </div>
+                <!-- Logos Placeholder REMOVIDOS -->
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+                    
+                    <div class="bg-gray-100 rounded-lg shadow-xl p-8 border-t-4 border-gray-400 flex flex-col hover:shadow-2xl transition-shadow">
+                        <h3 class="text-2xl font-black text-center mb-2 text-gray-700">Cota BRONZE</h3>
+                        <p class="text-center text-4xl font-black mb-6 text-gray-900">R$500</p>
+                        <ul class="space-y-4 text-gray-600 mb-8 flex-grow">
+                            <li class="flex items-center"><span class="text-neon-yellow mr-3">⭐</span> Divulgação nas Redes Sociais</li>
+                        </ul>
+                        <!-- Link WhatsApp BRONZE -->
+                        <a href="https://w.app/zgqabw" target="_blank" class="w-full text-center bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-lg hover:bg-gray-400 transition-colors">Fale Conosco</a>
+                    </div>
+                    
+                    <div class="bg-carnaval-purple text-white rounded-lg shadow-2xl p-8 border-t-4 border-neon-yellow transform md:scale-110 flex flex-col relative">
+                        <span class="absolute top-0 right-0 bg-neon-yellow text-carnaval-purple text-xs font-black px-3 py-1 rounded-bl-lg">DESTAQUE</span>
+                        <h3 class="text-2xl font-black text-center mb-2">Cota OURO</h3>
+                        <p class="text-center text-4xl font-black mb-6 text-neon-yellow">R$2.500</p>
+                        <ul class="space-y-4 mb-8 flex-grow">
+                            <li class="flex items-center"><span class="text-neon-yellow mr-3">🏆</span> Logo na Camisa Oficial</li>
+                            <li class="flex items-center"><span class="text-neon-yellow mr-3">🏆</span> Backdrop, Flyers e Cartazes</li>
+                            <li class="flex items-center"><span class="text-neon-yellow mr-3">🏆</span> Divulgação VIP nas Redes Sociais</li>
+                            <li class="flex items-center"><span class="text-neon-yellow mr-3">🏆</span> Todas as publicações dos eventos</li>
+                        </ul>
+                        <!-- Botão Patrocinar AGORA -->
+                        <a href="https://w.app/zgk0ur" target="_blank" class="w-full text-center bg-white text-carnaval-purple font-black py-3 px-6 rounded-full hover:bg-gray-100 transition-colors shadow-lg">Patrocinar AGORA</a>
+                    </div>
+
+                    <div class="bg-gray-100 rounded-lg shadow-xl p-8 border-t-4 border-neon-yellow flex flex-col hover:shadow-2xl transition-shadow">
+                        <h3 class="text-2xl font-black text-center mb-2 text-gray-700">Cota PRATA</h3>
+                        <p class="text-center text-4xl font-black mb-6 text-gray-900">R$1.000</p>
+                        <ul class="space-y-4 text-gray-600 mb-8 flex-grow">
+                             <li class="flex items-center"><span class="text-neon-yellow mr-3">✨</span> Divulgação nas Redes Sociais</li>
+                             <li class="flex items-center"><span class="text-neon-yellow mr-3">✨</span> Logo no Backdrop e Cartazes</li>
+                        </ul>
+                        <!-- Link WhatsApp PRATA -->
+                        <a href="https://w.app/xyqvyl" target="_blank" class="w-full text-center bg-neon-yellow text-carnaval-purple font-bold py-3 px-6 rounded-lg hover:bg-[#ffcf66] transition-colors">Fale Conosco</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer id="contato" class="bg-gray-900 text-white py-16">
+            <div class="container mx-auto px-6 text-center">
+                 <h2 class="text-3xl md:text-4xl font-black mb-4 text-neon-yellow">Vamos fazer juntos o maior carnaval de Contagem!</h2>
+                 <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-8">Entre em contato para fechar sua parceria e associar sua marca a uma história de sucesso, cultura e engajamento comunitário.</p>
+                 <div class="text-xl">
+                     <!-- Detalhes de contato removidos conforme solicitação -->
+                     <div class="flex justify-center space-x-4">
+                        <a href="https://www.instagram.com/blocodosbutequeiros/" target="_blank" class="text-gray-300 hover:text-neon-yellow">Instagram</a>
+                        <span>•</span>
+                        <a href="https://www.facebook.com/BlocoDosButequeiros" target="_blank" class="text-gray-300 hover:text-neon-yellow">Facebook</a>
+                     </div>
+                 </div>
+            </div>
+        </footer>
+
+        <!-- Botão de Contato Flutuante (Mobile) -->
+        <a id="mobile-contact-button" href="#patrocinio" class="md:hidden fixed bottom-4 right-4 bg-neon-yellow text-carnaval-purple font-black py-3 px-5 rounded-full shadow-lg z-50 transition-transform duration-300 transform hover:scale-105">
+             Patrocinar!
+        </a>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            /* * Configurações de Dados e Gráfico 
+             */
+            const growthData = {
+                years: ['2012', '2013', '2014', '2015', '2017', '2018', '2019', '2020', '2023', '2024'],
+                foliões: [50, 200, 600, 800, 1000, 1500, 2300, 3000, 3000, 3000]
+            };
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            const growthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: growthData.years,
+                    datasets: [{
+                        label: 'Número de Foliões',
+                        data: growthData.foliões,
+                        borderColor: '#5C2C90', /* Cor da linha - Roxo */
+                        backgroundColor: 'rgba(92, 44, 144, 0.15)', /* Fundo do gráfico - Roxo claro */
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#5C2C90',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#FDC83A', /* Ponto de hover - Amarelo */
+                        pointHoverBorderColor: '#5C2C90',
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('pt-BR');
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.parsed.y.toLocaleString('pt-BR') + ' foliões';
+                                }
+                            },
+                            backgroundColor: '#5C2C90', /* Fundo do Tooltip - Roxo */
+                            titleFont: {
+                                size: 16
+                            },
+                            bodyFont: {
+                                size: 14
+                            },
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: false
+                        }
+                    }
+                }
+            });
+
+            /*
+             * Lógica de Carrossel (Reutilizável)
+             */
+            function initializeCarousel(containerId) {
+                const container = document.getElementById(containerId);
+                const track = container.querySelector('.carousel-track');
+                const slides = Array.from(container.querySelectorAll('.carousel-slide'));
+                const prevButton = container.querySelector('.carousel-button-prev');
+                const nextButton = container.querySelector('.carousel-button-next');
+                let currentIndex = 0;
+
+                if (slides.length === 0) return;
+
+                function updateCarousel() {
+                    track.style.transform = 'translateX(-' + (currentIndex * 100) + '%)';
+                }
+
+                if (prevButton) {
+                    prevButton.addEventListener('click', () => {
+                        currentIndex = (currentIndex === 0) ? slides.length - 1 : currentIndex - 1;
+                        updateCarousel();
+                    });
+                }
+
+                if (nextButton) {
+                    nextButton.addEventListener('click', () => {
+                        currentIndex = (currentIndex === slides.length - 1) ? 0 : currentIndex + 1;
+                        updateCarousel();
+                    });
+                }
+            }
+
+            // Inicializa os carrosséis
+            initializeCarousel('carousel-historia');
+            initializeCarousel('carousel-foco');
+
+
+            /*
+             * Lógica de Navegação
+             */
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileLinks = mobileMenu.querySelectorAll('a');
+
+            // Toggle Menu Mobile
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Fecha o menu ao clicar em um link
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    // Ajuste de 68px para compensar a altura do cabeçalho fixo
+                    if (pageYOffset >= sectionTop - 68) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
